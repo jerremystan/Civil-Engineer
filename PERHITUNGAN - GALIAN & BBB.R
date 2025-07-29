@@ -87,8 +87,12 @@ d_table <- function(df){
 }
 
 #TOTAL ROW
-add_total_row <- function(source,df){
-  raw_col <- ncol(source)
+add_total_row <- function(source,df,isfloor){
+  if (isfloor == 1){
+    raw_col <- ncol(source) - 1
+  }else{
+    raw_col <- ncol(source)
+  }
   col_df <- colnames(df)
   n_col <- length(col_df)
   total_row <- c("TOTAL",rep(NA,raw_col-1))
@@ -97,9 +101,15 @@ add_total_row <- function(source,df){
     total_row <- c(total_row, sum(df[[temp_col]]))
   }
   df <- rbind(df,total_row)
-  for (i in (raw_col+1):n_col){
+  # for (i in (raw_col+1):n_col){
+  #   temp_col <- col_df[i]
+  #   df[[temp_col]] <- as.numeric(df[[temp_col]])
+  # }
+  for (i in 2:n_col){
     temp_col <- col_df[i]
-    df[[temp_col]] <- as.numeric(df[[temp_col]])
+    if(temp_col != "Notes"){
+      df[[temp_col]] <- as.numeric(df[[temp_col]])
+    }
   }
   return(df)
 }
@@ -114,7 +124,7 @@ galian_pilecap_step_1 <- galian_pilecap %>%
          `Pasir (m3)` = 0.1*(`Dimensi Pilecap P (m)` + 0.2)*(`Dimensi Pilecap L (m)` + 0.2)*`Jumlah Pilecap (bh)`,
          `Lantai Kerja (m3)` = 0.05*(`Dimensi Pilecap P (m)` + 0.2)*(`Dimensi Pilecap L (m)` + 0.2)*`Jumlah Pilecap (bh)`)
 
-galian_pilecap_step_2 <- add_total_row(galian_pilecap,galian_pilecap_step_1)
+galian_pilecap_step_2 <- add_total_row(galian_pilecap,galian_pilecap_step_1,0)
 
 #GALIAN - SLOOF
 galian_sloof_step_1 <- galian_sloof %>%
@@ -122,7 +132,7 @@ galian_sloof_step_1 <- galian_sloof %>%
          `Pasir (m3)` = 0.1*(`Dimensi Sloof B (m)` + 0.2)*`Panjang Sloof (m)`,
          `Lantai Kerja (m3)` = 0.05*(`Dimensi Sloof B (m)` + 0.2)*`Panjang Sloof (m)`)
 
-galian_sloof_step_2 <- add_total_row(galian_sloof, galian_sloof_step_1)
+galian_sloof_step_2 <- add_total_row(galian_sloof, galian_sloof_step_1,0)
 
 #BBB - PILE CAP
 bbb_pilecap_step_1 <- bbb_pilecap %>%
@@ -190,7 +200,7 @@ for (k in diameter_unique){
   
 }
 
-bbb_pilecap_step_3 <- add_total_row(bbb_pilecap,bbb_pilecap_step_2)
+bbb_pilecap_step_3 <- add_total_row(bbb_pilecap,bbb_pilecap_step_2,0)
 bbb_pilecap_step_3$`CEK (kg/m3)` <- as.numeric(bbb_pilecap_step_3$`Total - kg`)/as.numeric(bbb_pilecap_step_3$`Volume Beton (m3)`)
 
 
@@ -260,7 +270,7 @@ for (k in diameter_unique){
   
 }
 
-bbb_sloof_step_3 <- add_total_row(bbb_sloof,bbb_sloof_step_2)
+bbb_sloof_step_3 <- add_total_row(bbb_sloof,bbb_sloof_step_2,0)
 bbb_sloof_step_3$`CEK (kg/m3)` <- as.numeric(bbb_sloof_step_3$`Total - kg`)/as.numeric(bbb_sloof_step_3$`Volume Beton (m3)`)
 
 #BBB - KOLOM LANTAI
@@ -269,6 +279,7 @@ lantai <- unique(bbb_kolom_lantai$LANTAI)
 for(l in lantai){
   
   bbb_kolom_lantai_n <- bbb_kolom_lantai[bbb_kolom_lantai$LANTAI == l,]
+  bbb_kolom_lantai_n <- bbb_kolom_lantai_n[,-1]
   
   bbb_kolom_lantai_step_1 <- bbb_kolom_lantai_n %>%
     mutate(`Volume Beton (m3)` = `Jumlah Kolom (bh)`*`Panjang Kolom T (m)`*`Dimensi Kolom B (m)`*`Dimensi Kolom H (m)`,
@@ -330,7 +341,7 @@ for(l in lantai){
     
   }
   
-  bbb_kolom_lantai_step_3 <- add_total_row(bbb_kolom_lantai,bbb_kolom_lantai_step_2)
+  bbb_kolom_lantai_step_3 <- add_total_row(bbb_kolom_lantai,bbb_kolom_lantai_step_2,1)
   bbb_kolom_lantai_step_3$`CEK1 (kg/m3)` <- as.numeric(bbb_kolom_lantai_step_3$`Total - kg`)/as.numeric(bbb_kolom_lantai_step_3$`Volume Beton (m3)`)
   bbb_kolom_lantai_step_3$`CEK2 (m2/m3)` <- as.numeric(bbb_kolom_lantai_step_3$`Begesting (m2)`)/as.numeric(bbb_kolom_lantai_step_3$`Volume Beton (m3)`)
   
@@ -456,7 +467,7 @@ for (k in diameter_unique){
   
 }
 
-bbb_kolom_lift_step_3 <- add_total_row(bbb_kolom_lift,bbb_kolom_lift_step_2)
+bbb_kolom_lift_step_3 <- add_total_row(bbb_kolom_lift,bbb_kolom_lift_step_2,0)
 bbb_kolom_lift_step_3$`CEK1 (kg/m3)` <- as.numeric(bbb_kolom_lift_step_3$`Total - kg`)/as.numeric(bbb_kolom_lift_step_3$`Volume Beton (m3)`)
 bbb_kolom_lift_step_3$`CEK2 (m2/m3)` <- as.numeric(bbb_kolom_lift_step_3$`Begesting (m2)`)/as.numeric(bbb_kolom_lift_step_3$`Volume Beton (m3)`)
 
@@ -526,7 +537,7 @@ for (k in diameter_unique){
   
 }
 
-bbb_balok_lift_step_3 <- add_total_row(bbb_balok_lift,bbb_balok_lift_step_2)
+bbb_balok_lift_step_3 <- add_total_row(bbb_balok_lift,bbb_balok_lift_step_2,0)
 bbb_balok_lift_step_3$`CEK1 (kg/m3)` <- as.numeric(bbb_balok_lift_step_3$`Total - kg`)/as.numeric(bbb_balok_lift_step_3$`Volume Beton (m3)`)
 bbb_balok_lift_step_3$`CEK2 (m2/m3)` <- as.numeric(bbb_balok_lift_step_3$`Begesting (m2)`)/as.numeric(bbb_balok_lift_step_3$`Volume Beton (m3)`)
 
@@ -537,6 +548,7 @@ lantai <- unique(bbb_balok_lantai$LANTAI)
 for(l in lantai){
   
   bbb_balok_lantai_n <- bbb_balok_lantai[bbb_balok_lantai$LANTAI == l,]
+  bbb_balok_lantai_n <- bbb_balok_lantai_n[,-1]
   
   bbb_balok_lantai_step_1 <- bbb_balok_lantai_n %>%
     mutate(`Volume Beton (m3)` = `Panjang Balok (m)`*`Dimensi Balok B (m)`*`Dimensi Balok H (m)`,
@@ -603,7 +615,7 @@ for(l in lantai){
     
   }
   
-  bbb_balok_lantai_step_3 <- add_total_row(bbb_balok_lantai,bbb_balok_lantai_step_2)
+  bbb_balok_lantai_step_3 <- add_total_row(bbb_balok_lantai,bbb_balok_lantai_step_2,1)
   bbb_balok_lantai_step_3$`CEK1 (kg/m3)` <- as.numeric(bbb_balok_lantai_step_3$`Total - kg`)/as.numeric(bbb_balok_lantai_step_3$`Volume Beton (m3)`)
   bbb_balok_lantai_step_3$`CEK2 (m2/m3)` <- as.numeric(bbb_balok_lantai_step_3$`Begesting (m2)`)/as.numeric(bbb_balok_lantai_step_3$`Volume Beton (m3)`)
   
@@ -667,7 +679,7 @@ for (k in diameter_unique){
   
 }
 
-bbb_borepile_step_3 <- add_total_row(bbb_borepile,bbb_borepile_step_2)
+bbb_borepile_step_3 <- add_total_row(bbb_borepile,bbb_borepile_step_2,0)
 bbb_borepile_step_3$`CEK1 (kg/m3)` <- as.numeric(bbb_borepile_step_3$`Total - kg`)/as.numeric(bbb_borepile_step_3$`Volume Beton (m3)`)
 
 #BBB - TANGGA
@@ -676,6 +688,7 @@ lantai <- unique(bbb_tangga$LANTAI)
 for(l in lantai){
   
   bbb_tangga_n <- bbb_tangga[bbb_tangga$LANTAI == l,]
+  bbb_tangga_n <- bbb_tangga_n[,-1]
   
   bbb_tangga_step_1 <- bbb_tangga_n %>%
     mutate(
@@ -735,7 +748,7 @@ for(l in lantai){
     
   }
   
-  bbb_tangga_step_3 <- add_total_row(bbb_tangga,bbb_tangga_step_2)
+  bbb_tangga_step_3 <- add_total_row(bbb_tangga,bbb_tangga_step_2,1)
   bbb_tangga_step_3$`CEK1 (kg/m3)` <- as.numeric(bbb_tangga_step_3$`Total - kg`)/as.numeric(bbb_tangga_step_3$`Volume Beton (m3)`)
   bbb_tangga_step_3$`CEK2 (m2/m3)` <- as.numeric(bbb_tangga_step_3$`Begesting (m2)`)/as.numeric(bbb_tangga_step_3$`Volume Beton (m3)`)
   
@@ -751,11 +764,13 @@ for(l in lantai){
   
   bbb_plat_luas <- bbb_plat1[bbb_plat1$LANTAI == l,]
   bbb_plat_luas$`Luas (m2)` <- bbb_plat_luas$`Panjang (m)` * bbb_plat_luas$`Lebar (m)`
+  bbb_plat_luas <- bbb_plat_luas[,-1]
   
   total_luas <- sum(bbb_plat_luas$`Luas (m2)`)
   
   bbb_plat2_n <- bbb_plat2[bbb_plat2$LANTAI == l,]
   bbb_plat2_n$`Luas (m2)` <- total_luas
+  bbb_plat2_n <- bbb_plat2_n[,-1]
   
   bbb_plat2_step_1 <- bbb_plat2_n %>%
     mutate(
@@ -878,7 +893,6 @@ for(l in unique(bbb_kolom_lantai$LANTAI)){
   tulis(paste0("KOLOM LANTAI ",l),row_loc,2)
   row_loc <- row_loc + 1
   temp_df <- get(paste0("bbb_kolom_lantai_",l,"_step_3"))
-  temp_df <- temp_df[,-1]
   tulis(temp_df,row_loc, 2)
   row_loc <- row_loc + nrow(temp_df) + 2
 }
@@ -908,7 +922,6 @@ for(l in unique(bbb_balok_lantai$LANTAI)){
   tulis(paste0("BALOK LANTAI ",l),row_loc,2)
   row_loc <- row_loc + 1
   temp_df <- get(paste0("bbb_balok_lantai_",l,"_step_3"))
-  temp_df <- temp_df[,-1]
   tulis(temp_df,row_loc, 2)
   row_loc <- row_loc + nrow(temp_df) + 2
 }
@@ -926,7 +939,6 @@ for(l in unique(bbb_tangga$LANTAI)){
   tulis(paste0("TANGGA LANTAI ",l),row_loc,2)
   row_loc <- row_loc + 1
   temp_df <- get(paste0("bbb_tangga_",l,"_step_3"))
-  temp_df <- temp_df[,-1]
   tulis(temp_df,row_loc, 2)
   row_loc <- row_loc + nrow(temp_df) + 2
 }
@@ -939,12 +951,10 @@ for(l in unique(bbb_plat2$LANTAI)){
   row_loc <- row_loc + 1
   
   temp <- get(paste0("bbb_plat_luas_",l))
-  temp <- temp[,-1]
   tulis(temp,row_loc,2)
   row_loc <- row_loc + nrow(temp) + 1
   
   temp_df <- get(paste0("bbb_plat2_",l,"_step_3"))
-  temp_df <- temp_df[,-1]
   tulis(temp_df,row_loc, 2)
   row_loc <- row_loc + nrow(temp_df) + 2
 }
