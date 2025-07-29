@@ -903,13 +903,13 @@ row_loc <- row_loc + 1
 tulis(bbb_pitlift_step_2, row_loc, 2)
 row_loc <- row_loc + nrow(bbb_pitlift_step_2) + 2
 
-tulis("E.1.", row_loc, 1)
+tulis("D.2.", row_loc, 1)
 tulis("KOLOM LIFT", row_loc, 2)
 row_loc <- row_loc + 1
 tulis(bbb_kolom_lift_step_3, row_loc, 2)
 row_loc <- row_loc + nrow(bbb_kolom_lift_step_3) + 2
 
-tulis("F.1.", row_loc, 1)
+tulis("D.3.", row_loc, 1)
 tulis("BALOK LIFT", row_loc, 2)
 row_loc <- row_loc + 1
 tulis(bbb_balok_lift_step_3, row_loc, 2)
@@ -918,7 +918,7 @@ row_loc <- row_loc + nrow(bbb_balok_lift_step_3) + 2
 ind <- 0
 for(l in unique(bbb_balok_lantai$LANTAI)){
   ind <- ind + 1
-  tulis(paste0("G.",ind,"."),row_loc,1)
+  tulis(paste0("E.",ind,"."),row_loc,1)
   tulis(paste0("BALOK LANTAI ",l),row_loc,2)
   row_loc <- row_loc + 1
   temp_df <- get(paste0("bbb_balok_lantai_",l,"_step_3"))
@@ -926,7 +926,7 @@ for(l in unique(bbb_balok_lantai$LANTAI)){
   row_loc <- row_loc + nrow(temp_df) + 2
 }
 
-tulis("H.1.", row_loc, 1)
+tulis("F.1.", row_loc, 1)
 tulis("BOREPILE", row_loc, 2)
 row_loc <- row_loc + 1
 tulis(bbb_borepile_step_3, row_loc, 2)
@@ -935,7 +935,7 @@ row_loc <- row_loc + nrow(bbb_borepile_step_3) + 2
 ind <- 0
 for(l in unique(bbb_tangga$LANTAI)){
   ind <- ind + 1
-  tulis(paste0("I.",ind,"."),row_loc,1)
+  tulis(paste0("G.",ind,"."),row_loc,1)
   tulis(paste0("TANGGA LANTAI ",l),row_loc,2)
   row_loc <- row_loc + 1
   temp_df <- get(paste0("bbb_tangga_",l,"_step_3"))
@@ -946,7 +946,7 @@ for(l in unique(bbb_tangga$LANTAI)){
 ind <- 0
 for(l in unique(bbb_plat2$LANTAI)){
   ind <- ind + 1
-  tulis(paste0("J.",ind,"."),row_loc,1)
+  tulis(paste0("H.",ind,"."),row_loc,1)
   tulis(paste0("PLAT LANTAI ",l),row_loc,2)
   row_loc <- row_loc + 1
   
